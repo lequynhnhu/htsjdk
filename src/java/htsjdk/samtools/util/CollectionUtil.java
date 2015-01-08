@@ -189,13 +189,14 @@ public class CollectionUtil {
             this.map.clear();
         }
 
-        public void put(final K1 k1, final K2 k2, final V v) {
+        public V put(final K1 k1, final K2 k2, final V v) {
             if (!this.map.containsKey(k1)) this.map.put(k1, new HashMap<K2, V>());
-            this.map.get(k1).put(k2, v);
+            return this.map.get(k1).put(k2, v);
         }
 
         public V get(final K1 k1, final K2 k2) {
-            return this.map.get(k1).get(k2);
+            if (this.map.get(k1) == null) return null;
+            else return this.map.get(k1).get(k2);
         }
 
         public void remove(final K1 k1, final K2 k2) {
@@ -228,6 +229,12 @@ public class CollectionUtil {
             return size;
         }
 
+        /**
+         * Note that the return <code>Collection</code> is not fully backed by the parent.
+         * Objects removed from it will not be removed from the <code>TwoKeyHashMap</code>,
+         * although object modifications will carry over. This differs from the standard
+         * <code>HashMap</code> implementation.
+         */
         public Collection<V> values() {
             final Collection<V> values = new ArrayList<V>();
             for (final HashMap<K2, V> innerMap : this.map.values()) {
