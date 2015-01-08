@@ -177,4 +177,63 @@ public class CollectionUtil {
         }
     }
 
+    /**
+     * A HashMap with two ordered keys of independent types.
+     *
+     * DISCLAIMER: This is a simple, not very efficient implementation that doesn't perfectly mirror the behavior of HashMap. Use wisely.
+     */
+    public static class TwoKeyHashMap<K1, K2, V> {
+        private final HashMap<K1, HashMap<K2, V>> map = new HashMap<K1, HashMap<K2, V>>();
+
+        public void clear() {
+            this.map.clear();
+        }
+
+        public void put(final K1 k1, final K2 k2, final V v) {
+            if (!this.map.containsKey(k1)) this.map.put(k1, new HashMap<K2, V>());
+            this.map.get(k1).put(k2, v);
+        }
+
+        public V get(final K1 k1, final K2 k2) {
+            return this.map.get(k1).get(k2);
+        }
+
+        public void remove(final K1 k1, final K2 k2) {
+            if (this.map.containsKey(k1)) this.map.get(k1).remove(k2);
+        }
+
+        public boolean containsKey(final K1 k1, final K2 k2) {
+            return this.map.containsKey(k1) && this.map.get(k1).containsKey(k2);
+        }
+
+        public boolean containsValue(final V v) {
+            for (final HashMap<K2, V> innerMap : this.map.values()) {
+                if (innerMap.containsValue(v)) return true;
+            }
+            return false;
+        }
+
+        public boolean isEmpty() {
+            for (final HashMap<K2, V> innerMap : this.map.values()) {
+                if (!innerMap.isEmpty()) return false;
+            }
+            return true;
+        }
+
+        public int size() {
+            int size = 0;
+            for (final HashMap<K2, V> innerMap : this.map.values()) {
+                size += innerMap.size();
+            }
+            return size;
+        }
+
+        public Collection<V> values() {
+            final Collection<V> values = new ArrayList<V>();
+            for (final HashMap<K2, V> innerMap : this.map.values()) {
+                values.addAll(innerMap.values());
+            }
+            return values;
+        }
+    }
 }
