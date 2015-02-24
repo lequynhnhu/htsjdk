@@ -26,7 +26,7 @@ import htsjdk.tribble.index.Block;
  *  Describes a genomic interval and where in a file information for that
  *  interval can be obtained
  */
-public class Interval implements Comparable {
+public class FileInterval implements Comparable {
     /**
      * Start of the interval in genomic coordinates -- this is exposed on purpose, getters have a significant
      * performance penalty for this field.
@@ -44,14 +44,14 @@ public class Interval implements Comparable {
      */
     private Block block;
 
-    public Interval(int start, int end) {
+    public FileInterval(int start, int end) {
         assert start <= end;
         this.start = start;
         this.end = end;
     }
 
 
-    public Interval(int start, int end, Block block) {
+    public FileInterval(int start, int end, Block block) {
         assert start <= end;
         this.start = start;
         this.end = end;
@@ -63,7 +63,7 @@ public class Interval implements Comparable {
         if (this == other)
             return true;
         if (this.getClass().equals(other.getClass())) {
-            Interval otherInterval = (Interval) other;
+            FileInterval otherInterval = (FileInterval) other;
             return (this.start == otherInterval.start &&
                     this.end == otherInterval.end);
         }
@@ -77,7 +77,7 @@ public class Interval implements Comparable {
 
 
     public int compareTo(Object o) {
-        Interval other = (Interval) o;
+        FileInterval other = (FileInterval) o;
         if (this.start < other.start)
             return -1;
         if (this.start > other.start)
@@ -99,7 +99,7 @@ public class Interval implements Comparable {
     /**
      * @return whether this interval overlaps the other.
      */
-    public boolean overlaps(Interval other) {
+    public boolean overlaps(FileInterval other) {
         return (this.start <= other.end &&
                 other.start <= this.end);
     }

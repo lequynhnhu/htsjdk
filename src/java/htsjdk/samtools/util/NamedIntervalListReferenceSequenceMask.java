@@ -33,23 +33,23 @@ import java.util.List;
  *
  * @author alecw at broadinstitute dot oh are gee
  */
-public class IntervalListReferenceSequenceMask implements ReferenceSequenceMask {
+public class NamedIntervalListReferenceSequenceMask implements ReferenceSequenceMask {
 
     private final SAMFileHeader header;
     // if memory usage becomes a problem... this could be changed to a SparseBitSet
     // http://java.sun.com/developer/onlineTraining/collections/magercises/BitSet/index.html
     private final BitSet currentBitSet = new BitSet();
     private int currentSequenceIndex = -1;
-    private final PeekableIterator<Interval> intervalIterator;
+    private final PeekableIterator<NamedInterval> intervalIterator;
     private final int lastSequenceIndex;
     private final int lastPosition;
 
-    public IntervalListReferenceSequenceMask(final IntervalList intervalList) {
-        this.header = intervalList.getHeader();
-        if (intervalList.getHeader().getSortOrder() != SAMFileHeader.SortOrder.coordinate) {
-            intervalList.sorted();
+    public NamedIntervalListReferenceSequenceMask(final NamedIntervalList namedIntervalList) {
+        this.header = namedIntervalList.getHeader();
+        if (namedIntervalList.getHeader().getSortOrder() != SAMFileHeader.SortOrder.coordinate) {
+            namedIntervalList.sorted();
         }
-        final List<Interval> uniqueIntervals = intervalList.uniqued().getIntervals();
+        final List<NamedInterval> uniqueIntervals = namedIntervalList.uniqued().getIntervals();
         if (uniqueIntervals.isEmpty()) {
             lastSequenceIndex = -1;
             lastPosition = 0;
@@ -58,7 +58,7 @@ public class IntervalListReferenceSequenceMask implements ReferenceSequenceMask 
             lastSequenceIndex = header.getSequenceIndex((lastInterval.getSequence()));
             lastPosition = lastInterval.getEnd();
         }
-        intervalIterator = new PeekableIterator<Interval>(uniqueIntervals.iterator());
+        intervalIterator = new PeekableIterator<NamedInterval>(uniqueIntervals.iterator());
     }
 
     /**

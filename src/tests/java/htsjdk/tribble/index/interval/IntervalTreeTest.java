@@ -49,26 +49,26 @@ public class IntervalTreeTest {
     @BeforeClass
     public static void setupTree() {
         tree = new IntervalTree();
-        tree.insert(new Interval(0, 3, null));
-        tree.insert(new Interval(5, 8, null));
-        tree.insert(new Interval(6, 10, null));
-        tree.insert(new Interval(8, 9, null));
-        tree.insert(new Interval(15, 23, null));
-        tree.insert(new Interval(16, 21, null));
-        tree.insert(new Interval(17, 19, null));
-        tree.insert(new Interval(19, 20, null));
-        tree.insert(new Interval(25, 30, null));
-        tree.insert(new Interval(26, 27, null));
+        tree.insert(new FileInterval(0, 3, null));
+        tree.insert(new FileInterval(5, 8, null));
+        tree.insert(new FileInterval(6, 10, null));
+        tree.insert(new FileInterval(8, 9, null));
+        tree.insert(new FileInterval(15, 23, null));
+        tree.insert(new FileInterval(16, 21, null));
+        tree.insert(new FileInterval(17, 19, null));
+        tree.insert(new FileInterval(19, 20, null));
+        tree.insert(new FileInterval(25, 30, null));
+        tree.insert(new FileInterval(26, 27, null));
     }
 
     @Test
     public void testSearch() {
 
-        final Interval queryInterval = new Interval(1, 2);
-        List<Interval> intervals = tree.findOverlapping(queryInterval);
+        final FileInterval queryInterval = new FileInterval(1, 2);
+        List<FileInterval> intervals = tree.findOverlapping(queryInterval);
         Assert.assertNotNull(intervals);
 
-        for (Interval iv : intervals) {
+        for (FileInterval iv : intervals) {
             Assert.assertTrue(queryInterval.overlaps(iv));
         }
     }
@@ -87,16 +87,16 @@ public class IntervalTreeTest {
                 if (tokens.length > 2) {
                     int start = Integer.parseInt(tokens[1]);
                     int end = Integer.parseInt(tokens[2]);
-                    tree.insert(new Interval(start, end));
+                    tree.insert(new FileInterval(start, end));
                 }
 
             }
         }
 
 //        List iv = (List) tree.findOverlapping(new Interval(2770226, 2770300));
-        Interval searchInterval = new Interval(2782632, 2782732);
-        List<Interval> iv = tree.findOverlapping(searchInterval);
-        for (Interval i : iv) {
+        FileInterval searchInterval = new FileInterval(2782632, 2782732);
+        List<FileInterval> iv = tree.findOverlapping(searchInterval);
+        for (FileInterval i : iv) {
             Assert.assertTrue(i.overlaps(searchInterval));
         }
 

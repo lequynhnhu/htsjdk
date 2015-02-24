@@ -39,8 +39,8 @@ public class IntervalUtil {
     }
 
     /** Return true if the sequence/position lie in the provided interval list. */
-    public static boolean contains(final IntervalList intervalList, final String sequenceName, final long position) {
-        for (final Interval interval : intervalList.uniqued().getIntervals()) {
+    public static boolean contains(final NamedIntervalList namedIntervalList, final String sequenceName, final long position) {
+        for (final Interval interval : namedIntervalList.uniqued().getIntervals()) {
             if (contains(interval, sequenceName, position))
                 return true;
         }
@@ -53,14 +53,14 @@ public class IntervalUtil {
      * @param intervals
      * @param sequenceDictionary used to determine order of sequences
      */
-    public static void assertOrderedNonOverlapping(final Iterator<Interval> intervals, final SAMSequenceDictionary sequenceDictionary) {
+    public static void assertOrderedNonOverlapping(final Iterator<NamedInterval> intervals, final SAMSequenceDictionary sequenceDictionary) {
         if (!intervals.hasNext()) {
             return;
         }
-        Interval prevInterval = intervals.next();
+        NamedInterval prevInterval = intervals.next();
         int prevSequenceIndex = sequenceDictionary.getSequenceIndex(prevInterval.getSequence());
         while (intervals.hasNext()) {
-            final Interval interval = intervals.next();
+            final NamedInterval interval = intervals.next();
             if (prevInterval.intersects(interval)) {
                 throw new SAMException("Intervals should not overlap: " + prevInterval + "; " + interval);
             }

@@ -26,7 +26,7 @@ package htsjdk.samtools.util;
 import htsjdk.samtools.QueryInterval;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.filter.IntervalFilter;
+import htsjdk.samtools.filter.NamedIntervalFilter;
 import htsjdk.samtools.filter.SamRecordFilter;
 
 import java.util.Iterator;
@@ -51,7 +51,7 @@ public class SamRecordIntervalIteratorFactory {
      * index may actually make performance worse.
      */
     public CloseableIterator<SAMRecord> makeSamRecordIntervalIterator(final SamReader samReader,
-                                                                      final List<Interval> uniqueIntervals,
+                                                                      final List<NamedInterval> uniqueIntervals,
                                                                       final boolean useIndex) {
         if (!samReader.hasIndex() || !useIndex) {
             final int stopAfterSequence;
@@ -64,8 +64,8 @@ public class SamRecordIntervalIteratorFactory {
                 stopAfterSequence = samReader.getFileHeader().getSequenceIndex(lastInterval.getSequence());
                 stopAfterPosition = lastInterval.getEnd();
             }
-            final IntervalFilter intervalFilter = new IntervalFilter(uniqueIntervals, samReader.getFileHeader());
-            return new StopAfterFilteringIterator(samReader.iterator(), intervalFilter, stopAfterSequence, stopAfterPosition);
+            final NamedIntervalFilter namedIntervalFilter = new NamedIntervalFilter(uniqueIntervals, samReader.getFileHeader());
+            return new StopAfterFilteringIterator(samReader.iterator(), namedIntervalFilter, stopAfterSequence, stopAfterPosition);
         } else {
             final QueryInterval[] queryIntervals = new QueryInterval[uniqueIntervals.size()];
             for (int i = 0; i < queryIntervals.length; ++i) {

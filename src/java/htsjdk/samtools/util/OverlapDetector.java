@@ -80,7 +80,7 @@ public class OverlapDetector<T> {
     }
 
     /** Adds all items to the overlap detector. */
-    public void addAll(List<T> objects, List<Interval> intervals) {
+    public void addAll(List<T> objects, List<NamedInterval> intervals) {
         if (objects.size() != intervals.size()) {
             throw new IllegalArgumentException("Objects and intervals must be the same size.");
         }

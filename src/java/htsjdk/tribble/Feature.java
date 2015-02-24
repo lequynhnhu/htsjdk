@@ -24,12 +24,13 @@
 package htsjdk.tribble;
 
 
+import htsjdk.samtools.util.HasGenomicInterval;
+
 /**
  * Represents a locus on a reference sequence.   The coordinate conventions for start and end are implementation
  * dependent, no specific contact is specified here.
  */
-public interface Feature {
-
+public interface Feature extends HasGenomicInterval {
     /**
      * Return the features reference sequence name, e.g chromosome or contig
      */
@@ -44,4 +45,5 @@ public interface Feature {
      * Return the end position
      */
     public int getEnd();
+
 }

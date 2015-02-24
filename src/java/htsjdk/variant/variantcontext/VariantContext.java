@@ -25,6 +25,7 @@
 
 package htsjdk.variant.variantcontext;
 
+import htsjdk.samtools.util.Interval;
 import htsjdk.tribble.Feature;
 import htsjdk.tribble.TribbleException;
 import htsjdk.tribble.util.ParsingUtils;
@@ -293,6 +294,11 @@ public class VariantContext implements Feature { // to enable tribble integratio
         } else {
             return sortedList;
         }
+    }
+
+    @Override
+    public Interval getInterval() {
+        return new Interval(getChr(),getStart(),getEnd());
     }
 
     // ---------------------------------------------------------------------------------------------------------

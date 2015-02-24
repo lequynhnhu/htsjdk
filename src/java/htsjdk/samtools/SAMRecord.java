@@ -25,7 +25,9 @@ package htsjdk.samtools;
 
 
 import htsjdk.samtools.util.CoordMath;
+import htsjdk.samtools.util.Interval;
 import htsjdk.samtools.util.StringUtil;
+import htsjdk.samtools.util.HasGenomicInterval;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -80,7 +82,7 @@ import java.util.List;
  * @author alecw@broadinstitute.org
  * @author mishali.naik@intel.com
  */
-public class SAMRecord implements Cloneable
+public class SAMRecord implements Cloneable, HasGenomicInterval
 {
     /**
      * Alignment score for a good alignment, but where computing a Phred-score is not feasible. 
@@ -1178,6 +1180,12 @@ public class SAMRecord implements Cloneable
     protected SAMBinaryTagAndValue getBinaryAttributes() {
         return mAttributes;
     }
+
+    @Override
+    public Interval getInterval() {
+        return new Interval(getReferenceName(), getAlignmentStart(), getAlignmentEnd());
+    }
+
 
     /**
      * Tag name and value of an attribute, for getAttributes() method.

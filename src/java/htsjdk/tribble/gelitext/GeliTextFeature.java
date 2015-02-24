@@ -23,6 +23,7 @@
  */
 package htsjdk.tribble.gelitext;
 
+import htsjdk.samtools.util.Interval;
 import htsjdk.tribble.Feature;
 
 import java.util.Arrays;
@@ -81,12 +82,15 @@ public class GeliTextFeature implements Feature {
         this.likelihoods = likelihoods;
     }
 
+
     /** Return the features reference sequence name, e.g chromosome or contig */
+    @Override
     public String getChr() {
         return this.contig;
     }
 
     /** Return the start position in 1-based coordinates (first base is 1) */
+    @Override
     public int getStart() {
         return (int) this.position;
     }
@@ -95,6 +99,7 @@ public class GeliTextFeature implements Feature {
      * Return the end position following 1-based fully closed conventions.  The length of a feature is
      * end - start + 1;
      */
+    @Override
     public int getEnd() {
         return (int) this.position;
     }
@@ -128,6 +133,8 @@ public class GeliTextFeature implements Feature {
     }
 
     private static double Epsilon = 0.0001;
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof GeliTextFeature)) return false;
         GeliTextFeature other = (GeliTextFeature)o;
@@ -141,5 +148,10 @@ public class GeliTextFeature implements Feature {
         if (!(Math.abs(LODBestToReference - other.LODBestToReference) < Epsilon)) return false;
         if (!(Math.abs(LODBestToNext - other.LODBestToNext) < Epsilon)) return false;
         return true;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return new Interval(getChr(),getStart(),getEnd());
     }
 }

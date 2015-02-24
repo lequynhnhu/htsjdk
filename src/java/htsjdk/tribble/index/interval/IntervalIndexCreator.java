@@ -149,8 +149,8 @@ class MutableInterval {
         this.endFilePosition = endFilePosition;
     }
 
-    public Interval toInterval() {
-        return new Interval(start,stop,new Block(startFilePosition, endFilePosition - startFilePosition));
+    public FileInterval toInterval() {
+        return new FileInterval(start,stop,new Block(startFilePosition, endFilePosition - startFilePosition));
     }
 
     public int getStop() {

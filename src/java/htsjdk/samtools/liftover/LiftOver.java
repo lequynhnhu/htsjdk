@@ -27,6 +27,7 @@ import htsjdk.samtools.SAMException;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.util.IOUtil;
 import htsjdk.samtools.util.Interval;
+import htsjdk.samtools.util.NamedInterval;
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.OverlapDetector;
 
@@ -74,7 +75,7 @@ public class LiftOver {
      * @param interval Interval to be lifted over.
      * @return Interval in the output build coordinates, or null if it cannot be lifted over.
      */
-    public Interval liftOver(final Interval interval) {
+    public Interval liftOver(final NamedInterval interval) {
         return liftOver(interval, liftOverMinMatch);
     }
 
@@ -84,7 +85,7 @@ public class LiftOver {
      * @param liftOverMinMatch Minimum fraction of bases that must remap.
      * @return Interval in the output build coordinates, or null if it cannot be lifted over.
      */
-    public Interval liftOver(final Interval interval, final double liftOverMinMatch) {
+    public Interval liftOver(final NamedInterval interval, final double liftOverMinMatch) {
         if (interval.length() == 0) {
             throw new IllegalArgumentException("Zero-length interval cannot be lifted over.  Interval: " +
                     interval.getName());
@@ -119,19 +120,19 @@ public class LiftOver {
         return createToInterval(interval.getName(), targetIntersection);
     }
 
-    public List<PartialLiftover> diagnosticLiftover(final Interval interval) {
+    public List<PartialLiftover> diagnosticLiftover(final NamedInterval interval) {
         final List<PartialLiftover> ret = new ArrayList<PartialLiftover>();
         if (interval.length() == 0) {
             throw new IllegalArgumentException("Zero-length interval cannot be lifted over.  Interval: " +
                     interval.getName());
         }
         for (final Chain chain : chains.getOverlaps(interval)) {
-            Interval intersectingChain = interval.intersect(chain.interval);
+            NamedInterval intersectingChain = interval.intersect(chain.interval);
             final TargetIntersection targetIntersection = targetIntersection(chain, intersectingChain);
             if (targetIntersection == null) {
                 ret.add(new PartialLiftover(intersectingChain, chain.id));
             } else {
-                Interval toInterval = createToInterval(interval.getName(), targetIntersection);
+                NamedInterval toInterval = createToInterval(interval.getName(), targetIntersection);
                 float percentLiftedOver = targetIntersection.intersectionLength/(float)interval.length();
                 ret.add(new PartialLiftover(intersectingChain, toInterval, targetIntersection.chain.id, percentLiftedOver));
             }
@@ -139,7 +140,7 @@ public class LiftOver {
         return ret;
     }
 
-    private static Interval createToInterval(final String intervalName, final TargetIntersection targetIntersection) {
+    private static NamedInterval createToInterval(final String intervalName, final TargetIntersection targetIntersection) {
         // Compute the query interval given the offsets of the target interval start and end into the first and
         // last ContinuousBlocks.
         int toStart = targetIntersection.chain.getBlock(targetIntersection.firstBlockIndex).toStart + targetIntersection.startOffset;
@@ -156,7 +157,7 @@ public class LiftOver {
             toEnd = negativeEnd;
         }
         // Convert to 1-based, inclusive.
-        return new Interval(targetIntersection.chain.toSequenceName, toStart+1, toEnd, targetIntersection.chain.toNegativeStrand,
+        return new NamedInterval(targetIntersection.chain.toSequenceName, toStart+1, toEnd, targetIntersection.chain.toNegativeStrand,
                 intervalName);
     }
 
@@ -255,24 +256,24 @@ public class LiftOver {
      */
     public static class PartialLiftover {
         /** Intersection between "from" interval and "from" region of a chain. */
-        final Interval fromInterval;
+        final NamedInterval fromInterval;
         /**
          * Result of lifting over fromInterval (with no percentage mapped requirement).  This is null
          * if fromInterval falls entirely with a gap of the chain. */
-        final Interval toInterval;
+        final NamedInterval toInterval;
         /** id of chain used for this liftover */
         final int chainId;
         /** Percentage of bases in fromInterval that lifted over.  0 if fromInterval is not covered by any chain. */
         final float percentLiftedOver;
 
-        PartialLiftover(final Interval fromInterval, final Interval toInterval, final int chainId, final float percentLiftedOver) {
+        PartialLiftover(final NamedInterval fromInterval, final NamedInterval toInterval, final int chainId, final float percentLiftedOver) {
             this.fromInterval = fromInterval;
             this.toInterval = toInterval;
             this.chainId = chainId;
             this.percentLiftedOver = percentLiftedOver;
         }
 
-        PartialLiftover(final Interval fromInterval, final int chainId) {
+        PartialLiftover(final NamedInterval fromInterval, final int chainId) {
             this.fromInterval = fromInterval;
             this.toInterval = null;
             this.chainId = chainId;

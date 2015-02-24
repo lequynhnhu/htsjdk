@@ -77,7 +77,7 @@ public class IntervalTreeIndex extends AbstractIndex {
      * @param chr      Chromosome
      * @param interval
      */
-    public void insert(final String chr, final Interval interval) {
+    public void insert(final String chr, final FileInterval interval) {
         ChrIndex chrIdx = (ChrIndex) chrIndices.get(chr);
         if (chrIdx == null) {
             chrIdx = new ChrIndex(chr);
@@ -123,7 +123,7 @@ public class IntervalTreeIndex extends AbstractIndex {
             return name;
         }
 
-        public void insert(final Interval iv) {
+        public void insert(final FileInterval iv) {
             tree.insert(iv);
         }
 
@@ -135,14 +135,14 @@ public class IntervalTreeIndex extends AbstractIndex {
         public List<Block> getBlocks(final int start, final int end) {
 
             // Get intervals and build blocks list
-            final List<Interval> intervals = tree.findOverlapping(new Interval(start, end));
+            final List<FileInterval> intervals = tree.findOverlapping(new FileInterval(start, end));
 
             // save time (and save throwing an exception) if the blocks are empty, return now
             if (intervals == null || intervals.size() == 0) return new ArrayList<Block>();
 
             final Block[] blocks = new Block[intervals.size()];
             int idx = 0;
-            for (final Interval iv : intervals) {
+            for (final FileInterval iv : intervals) {
                 blocks[idx++] = iv.getBlock();
             }
 
@@ -178,10 +178,10 @@ public class IntervalTreeIndex extends AbstractIndex {
         public void write(final LittleEndianOutputStream dos) throws IOException {
 
             dos.writeString(name);
-            final List<Interval> intervals = tree.getIntervals();
+            final List<FileInterval> intervals = tree.getIntervals();
 
             dos.writeInt(intervals.size());
-            for (final Interval interval : intervals) {
+            for (final FileInterval interval : intervals) {
                 dos.writeInt(interval.start);
                 dos.writeInt(interval.end);
                 dos.writeLong(interval.getBlock().getStartPosition());
@@ -203,7 +203,7 @@ public class IntervalTreeIndex extends AbstractIndex {
                 final long pos = dis.readLong();
                 final int size = dis.readInt();
 
-                final Interval iv = new Interval(start, end, new Block(pos, size));
+                final FileInterval iv = new FileInterval(start, end, new Block(pos, size));
                 tree.insert(iv);
             }
 

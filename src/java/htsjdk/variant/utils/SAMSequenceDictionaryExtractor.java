@@ -35,7 +35,7 @@ import htsjdk.samtools.util.BufferedLineReader;
 import htsjdk.samtools.util.CloserUtil;
 import htsjdk.samtools.util.CollectionUtil;
 import htsjdk.samtools.util.IOUtil;
-import htsjdk.samtools.util.IntervalList;
+import htsjdk.samtools.util.NamedIntervalList;
 import htsjdk.variant.vcf.VCFFileReader;
 
 import java.io.File;
@@ -97,7 +97,7 @@ public class SAMSequenceDictionaryExtractor {
         INTERVAL_LIST(IOUtil.INTERVAL_LIST_FILE_EXTENSION) {
             @Override
             SAMSequenceDictionary extractDictionary(final File intervalList) {
-                return IntervalList.fromFile(intervalList).getHeader().getSequenceDictionary();
+                return NamedIntervalList.fromFile(intervalList).getHeader().getSequenceDictionary();
             }
         };
 

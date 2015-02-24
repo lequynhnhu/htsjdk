@@ -23,6 +23,7 @@
  */
 package htsjdk.tribble.dbsnp;
 
+import htsjdk.samtools.util.Interval;
 import htsjdk.tribble.Feature;
 import htsjdk.tribble.annotation.Strand;
 
@@ -82,14 +83,17 @@ public class OldDbSNPFeature implements Feature {
      * the required getting and setter methods
      */
 
+    @Override
     public String getChr() {
         return contig;
     }
 
+    @Override
     public int getStart() {
         return start;
     }
 
+    @Override
     public int getEnd() {
         return stop;
     }
@@ -208,5 +212,10 @@ public class OldDbSNPFeature implements Feature {
 
     public void setRsID(String rsID) {
         this.rsID = rsID;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return new Interval(getChr(), getStart(), getEnd());
     }
 }

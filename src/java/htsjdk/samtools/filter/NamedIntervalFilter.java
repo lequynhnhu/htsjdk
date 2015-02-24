@@ -25,8 +25,8 @@ package htsjdk.samtools.filter;
 
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.util.Interval;
 import htsjdk.samtools.util.IntervalUtil;
+import htsjdk.samtools.util.NamedInterval;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,20 +39,20 @@ import java.util.List;
  *
  * @author alecw@broadinstitute.org
  */
-public class IntervalFilter implements SamRecordFilter {
-    private final Iterator<Interval> intervals;
+public class NamedIntervalFilter implements SamRecordFilter {
+    private final Iterator<NamedInterval> intervals;
     /**
      * Null only if there are no more intervals
      */
     private final SAMFileHeader samHeader;
-    private Interval currentInterval;
+    private NamedInterval currentInterval;
     private int currentSequenceIndex;
 
     /**
      * Prepare to filter out SAMRecords that do not overlap the given list of intervals
      * @param intervals -- must be locus-ordered & non-overlapping
      */
-    public IntervalFilter(final List<Interval> intervals, final SAMFileHeader samHeader) {
+    public NamedIntervalFilter(final List<NamedInterval> intervals, final SAMFileHeader samHeader) {
         this.samHeader = samHeader;
         IntervalUtil.assertOrderedNonOverlapping(intervals.iterator(), samHeader.getSequenceDictionary());
         this.intervals = intervals.iterator();

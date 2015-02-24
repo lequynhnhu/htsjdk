@@ -26,7 +26,7 @@ package htsjdk.samtools.liftover;
 import htsjdk.samtools.SAMException;
 import htsjdk.samtools.util.BufferedLineReader;
 import htsjdk.samtools.util.IOUtil;
-import htsjdk.samtools.util.Interval;
+import htsjdk.samtools.util.NamedInterval;
 import htsjdk.samtools.util.OverlapDetector;
 
 import java.io.File;
@@ -67,7 +67,7 @@ class Chain {
     /** Score is not used in basic liftover implementation, but is stored so that chain can be written to disk. */
     final double score;
     /** one-based, inclusive, so that Chain can be stored in an OverlapDetector */
-    final Interval interval;
+    final NamedInterval interval;
     /** Total score for chain is not used in basic liftover so not stored. */
     // final double score;
     final String fromSequenceName;
@@ -98,7 +98,7 @@ class Chain {
           final String toSequenceName, final int toSequenceSize, final boolean toNegativeStrand,
           final int toChainStart, final int toChainEnd, final int id) {
         // Convert  to one-based, inclusive for Interval.
-        interval = new Interval(fromSequenceName, fromChainStart + 1, fromChainEnd);
+        interval = new NamedInterval(fromSequenceName, fromChainStart + 1, fromChainEnd);
         this.score = score;
         this.toChainEnd = toChainEnd;
         this.toSequenceName = toSequenceName;

@@ -60,16 +60,16 @@ import java.util.TreeSet;
  * @author Tim Fennell
  * @author Yossi Farjoun
  */
-public class IntervalList implements Iterable<Interval> {
+public class NamedIntervalList implements Iterable<NamedInterval> {
     public static final String INTERVAL_LIST_FILE_EXTENSION = ".interval_list";
 
     private final SAMFileHeader header;
-    private final List<Interval> intervals = new ArrayList<Interval>();
+    private final List<NamedInterval> intervals = new ArrayList<NamedInterval>();
 
-    private static final Log log = Log.getInstance(IntervalList.class);
+    private static final Log log = Log.getInstance(NamedIntervalList.class);
 
     /** Constructs a new interval list using the supplied header information. */
-    public IntervalList(final SAMFileHeader header) {
+    public NamedIntervalList(final SAMFileHeader header) {
         if (header == null) {
             throw new IllegalArgumentException("SAMFileHeader must be supplied.");
         }
@@ -80,13 +80,13 @@ public class IntervalList implements Iterable<Interval> {
     public SAMFileHeader getHeader() { return header; }
 
     /** Returns an iterator over the intervals. */
-    public Iterator<Interval> iterator() { return this.intervals.iterator(); }
+    public Iterator<NamedInterval> iterator() { return this.intervals.iterator(); }
 
     /** Adds an interval to the list of intervals. */
-    public void add(final Interval interval) { this.intervals.add(interval); }
+    public void add(final NamedInterval interval) { this.intervals.add(interval); }
 
     /** Adds a Collection of intervals to the list of intervals. */
-    public void addall(final Collection<Interval> intervals) {
+    public void addall(final Collection<NamedInterval> intervals) {
         this.intervals.addAll(intervals);
     }
 
@@ -94,20 +94,20 @@ public class IntervalList implements Iterable<Interval> {
     @Deprecated // Use sorted() instead of sort(). The sort() function modifies the object in-place and
     // is therefore difficult to work with. sorted() returns a new IntervalList that is sorted
     public void sort() {
-        Collections.sort(this.intervals, new IntervalCoordinateComparator(this.header));
+        Collections.sort(this.intervals, new NamedIntervalCoordinateComparator(this.header));
         this.header.setSortOrder(SAMFileHeader.SortOrder.coordinate);
     }
 
     /** returns an independent sorted IntervalList*/
-    public IntervalList sorted() {
-        final IntervalList sorted = IntervalList.copyOf(this);
-        Collections.sort(sorted.intervals, new IntervalCoordinateComparator(sorted.header));
+    public NamedIntervalList sorted() {
+        final NamedIntervalList sorted = NamedIntervalList.copyOf(this);
+        Collections.sort(sorted.intervals, new NamedIntervalCoordinateComparator(sorted.header));
         sorted.header.setSortOrder(SAMFileHeader.SortOrder.coordinate);
         return sorted;
     }
 
     /** Returned an independent IntervalList that is sorted and uniquified. */
-    public IntervalList uniqued() {
+    public NamedIntervalList uniqued() {
         return uniqued(true);
     }
 
@@ -115,9 +115,9 @@ public class IntervalList implements Iterable<Interval> {
      * Returned an independent IntervalList that is sorted and uniquified.
      * @param concatenateNames If false, interval names are not concatenated when merging intervals to save space.
      */
-    public IntervalList uniqued(final boolean concatenateNames) {
-        final List<Interval> tmp = getUniqueIntervals(sorted(), concatenateNames);
-        final IntervalList value = new IntervalList(this.header.clone());
+    public NamedIntervalList uniqued(final boolean concatenateNames) {
+        final List<NamedInterval> tmp = getUniqueIntervals(sorted(), concatenateNames);
+        final NamedIntervalList value = new NamedIntervalList(this.header.clone());
         value.intervals.addAll(tmp);
         return value;
     }
@@ -137,13 +137,13 @@ public class IntervalList implements Iterable<Interval> {
     // is therefore difficult to work with
     public void unique(final boolean concatenateNames) {
         sort();
-        final List<Interval> tmp = getUniqueIntervals(concatenateNames);
+        final List<NamedInterval> tmp = getUniqueIntervals(concatenateNames);
         this.intervals.clear();
         this.intervals.addAll(tmp);
     }
 
     /** Gets the set of intervals as held internally. */
-    public List<Interval> getIntervals() {
+    public List<NamedInterval> getIntervals() {
         return Collections.unmodifiableList(this.intervals);
     }
 
@@ -158,7 +158,7 @@ public class IntervalList implements Iterable<Interval> {
      */
     @Deprecated//use uniqued().getIntervals() instead. This function modifies the object in-place and
     // is therefore difficult to work with
-    public List<Interval> getUniqueIntervals() {
+    public List<NamedInterval> getUniqueIntervals() {
         return getUniqueIntervals(true);
     }
 
@@ -167,7 +167,7 @@ public class IntervalList implements Iterable<Interval> {
      * Merges list of intervals and reduces them like htsjdk.samtools.util.IntervalList#getUniqueIntervals()
      * @param concatenateNames If false, the merged interval has the name of the earlier interval.  This keeps name shorter.
      */
-    public static List<Interval> getUniqueIntervals(final IntervalList list, final boolean concatenateNames) {
+    public static List<NamedInterval> getUniqueIntervals(final NamedIntervalList list, final boolean concatenateNames) {
         return getUniqueIntervals(list, concatenateNames, false);
     }
 
@@ -177,9 +177,9 @@ public class IntervalList implements Iterable<Interval> {
      * @param concatenateNames If false, the merged interval has the name of the earlier interval.  This keeps name shorter.
      * @param enforceSameStrands enforce that merged intervals have the same strand, otherwise ignore.
      */
-    public static List<Interval> getUniqueIntervals(final IntervalList list, final boolean concatenateNames, final boolean enforceSameStrands) {
+    public static List<NamedInterval> getUniqueIntervals(final NamedIntervalList list, final boolean concatenateNames, final boolean enforceSameStrands) {
 
-        final List<Interval> intervals;
+        final List<NamedInterval> intervals;
         if (list.getHeader().getSortOrder() != SAMFileHeader.SortOrder.coordinate) {
             intervals = list.sorted().intervals;
         }
@@ -187,11 +187,11 @@ public class IntervalList implements Iterable<Interval> {
             intervals = list.intervals;
         }
 
-        final List<Interval> unique = new ArrayList<Interval>();
-        final TreeSet<Interval> toBeMerged = new TreeSet<Interval>();
-        Interval current = null;
+        final List<NamedInterval> unique = new ArrayList<NamedInterval>();
+        final TreeSet<NamedInterval> toBeMerged = new TreeSet<NamedInterval>();
+        NamedInterval current = null;
 
-        for (final Interval next : intervals) {
+        for (final NamedInterval next : intervals) {
             if (current == null) {
                 toBeMerged.add(next);
                 current = next;
@@ -199,7 +199,7 @@ public class IntervalList implements Iterable<Interval> {
             else if (current.intersects(next) || current.abuts(next)) {
                 if (enforceSameStrands && current.isNegativeStrand() != next.isNegativeStrand()) throw new SAMException("Strands were not equal for: " + current.toString() + " and " + next.toString());
                 toBeMerged.add(next);
-                current = new Interval(current.getSequence(), current.getStart(), Math.max(current.getEnd(), next.getEnd()), current.isNegativeStrand(), null);
+                current = new NamedInterval(current.getSequence(), current.getStart(), Math.max(current.getEnd(), next.getEnd()), current.isNegativeStrand(), null);
             }
             else {
                 // Emit merged/unique interval
@@ -225,7 +225,7 @@ public class IntervalList implements Iterable<Interval> {
      * Merges list of intervals and reduces them like htsjdk.samtools.util.IntervalList#getUniqueIntervals()
      * @param concatenateNames If false, the merged interval has the name of the earlier interval.  This keeps name shorter.
      */
-    public List<Interval> getUniqueIntervals(final boolean concatenateNames) {
+    public List<NamedInterval> getUniqueIntervals(final boolean concatenateNames) {
         if (getHeader().getSortOrder() != SAMFileHeader.SortOrder.coordinate) {
             sort();
         }
@@ -234,7 +234,7 @@ public class IntervalList implements Iterable<Interval> {
     }
 
     /** Merges a sorted collection of intervals and optionally concatenates unique names or takes the first name. */
-    static Interval merge(final SortedSet<Interval> intervals, final boolean concatenateNames) {
+    static NamedInterval merge(final SortedSet<NamedInterval> intervals, final boolean concatenateNames) {
         final String chrom = intervals.first().getSequence();
         int start = intervals.first().getStart();
         int end   = intervals.last().getEnd();
@@ -242,7 +242,7 @@ public class IntervalList implements Iterable<Interval> {
         final LinkedHashSet<String> names = new LinkedHashSet<String>();
         final String name;
 
-        for (final Interval i : intervals) {
+        for (final NamedInterval i : intervals) {
             if (i.getName() != null) names.add(i.getName());
             start = Math.min(start, i.getStart());
             end   = Math.max(end, i.getEnd());
@@ -254,12 +254,12 @@ public class IntervalList implements Iterable<Interval> {
         }
         else { name = names.iterator().next(); }
 
-        return new Interval(chrom, start, end, neg, name);
+        return new NamedInterval(chrom, start, end, neg, name);
     }
 
     /** Gets the (potentially redundant) sum of the length of the intervals in the list. */
     public long getBaseCount() {
-        return Interval.countBases(this.intervals);
+        return NamedInterval.countBases(this.intervals);
     }
 
     /** Gets the count of unique bases represented by the intervals in the list. */
@@ -277,8 +277,8 @@ public class IntervalList implements Iterable<Interval> {
      * @param list
      * @return
      */
-    public static IntervalList copyOf(final IntervalList list){
-        final IntervalList clone = new IntervalList(list.header.clone());
+    public static NamedIntervalList copyOf(final NamedIntervalList list){
+        final NamedIntervalList clone = new NamedIntervalList(list.header.clone());
         clone.intervals.addAll(list.intervals);
         return clone;
     }
@@ -288,9 +288,9 @@ public class IntervalList implements Iterable<Interval> {
      * @param file the file containing the intervals
      * @return an IntervalList object that contains the headers and intervals from the file
      */
-    public static IntervalList fromFile(final File file) {
+    public static NamedIntervalList fromFile(final File file) {
         final BufferedReader reader= IOUtil.openFileForBufferedReading(file);
-        final IntervalList list = fromReader(reader);
+        final NamedIntervalList list = fromReader(reader);
         try {
             reader.close();
         } catch (final IOException e) {
@@ -306,9 +306,9 @@ public class IntervalList implements Iterable<Interval> {
      * @param sequenceName name of sequence in header
      * @return a new intervalList with given header that contains the reference name
      */
-    public static IntervalList fromName(final SAMFileHeader header, final String sequenceName) {
-        final IntervalList ref = new IntervalList(header);
-        ref.add(new Interval(sequenceName, 1, header.getSequence(sequenceName).getSequenceLength()));
+    public static NamedIntervalList fromName(final SAMFileHeader header, final String sequenceName) {
+        final NamedIntervalList ref = new NamedIntervalList(header);
+        ref.add(new NamedInterval(sequenceName, 1, header.getSequence(sequenceName).getSequenceLength()));
 
         return ref;
     }
@@ -316,12 +316,12 @@ public class IntervalList implements Iterable<Interval> {
     /**
      * Calls {@link #fromFile(java.io.File)} on the provided files, and returns their {@link #union(java.util.Collection)}.
      */
-    public static IntervalList fromFiles(final Collection<File> intervalListFiles) {
-        final Collection<IntervalList> intervalLists = new ArrayList<IntervalList>();
+    public static NamedIntervalList fromFiles(final Collection<File> intervalListFiles) {
+        final Collection<NamedIntervalList> namedIntervalLists = new ArrayList<NamedIntervalList>();
         for (final File file : intervalListFiles) {
-            intervalLists.add(IntervalList.fromFile(file));
+            namedIntervalLists.add(NamedIntervalList.fromFile(file));
         }
-        return IntervalList.union(intervalLists);
+        return NamedIntervalList.union(namedIntervalLists);
     }
 
     /**
@@ -329,7 +329,7 @@ public class IntervalList implements Iterable<Interval> {
      * @param in a BufferedReader that can be read from
      * @return an IntervalList object that contains the headers and intervals from the file
      */
-    public static IntervalList fromReader(final BufferedReader in) {
+    public static NamedIntervalList fromReader(final BufferedReader in) {
         try {
             // Setup a reader and parse the header
             final StringBuilder builder = new StringBuilder(4096);
@@ -350,7 +350,7 @@ public class IntervalList implements Iterable<Interval> {
 
             final StringLineReader headerReader = new StringLineReader(builder.toString());
             final SAMTextHeaderCodec codec = new SAMTextHeaderCodec();
-            final IntervalList list = new IntervalList(codec.decode(headerReader, "BufferedReader"));
+            final NamedIntervalList list = new NamedIntervalList(codec.decode(headerReader, "BufferedReader"));
             final SAMSequenceDictionary dict = list.getHeader().getSequenceDictionary();
 
             //there might not be any lines after the header, in which case we should return an empty list
@@ -380,7 +380,7 @@ public class IntervalList implements Iterable<Interval> {
 
                 final String name = fields[4];
 
-                final Interval interval = new Interval(seq, start, end, negative, name);
+                final NamedInterval interval = new NamedInterval(seq, start, end, negative, name);
                 if (dict.getSequence(seq) == null) {
                     log.warn("Ignoring interval for unknown reference: " + interval);
                 }
@@ -416,7 +416,7 @@ public class IntervalList implements Iterable<Interval> {
             }
 
             // Write out the intervals
-            for (final Interval interval : this) {
+            for (final NamedInterval interval : this) {
                 out.write(interval.getSequence());
                 out.write('\t');
                 out.write(format.format(interval.getStart()));
@@ -450,23 +450,23 @@ public class IntervalList implements Iterable<Interval> {
      * @return the intersection of list1 and list2.
      */
 
-    public static IntervalList intersection(final IntervalList list1, final IntervalList list2) {
+    public static NamedIntervalList intersection(final NamedIntervalList list1, final NamedIntervalList list2) {
 
-        final IntervalList result;
+        final NamedIntervalList result;
         // Ensure that all the sequence dictionaries agree and merge the lists
         SequenceUtil.assertSequenceDictionariesEqual(list1.getHeader().getSequenceDictionary(),
                 list2.getHeader().getSequenceDictionary());
 
-        result = new IntervalList(list1.getHeader().clone());
+        result = new NamedIntervalList(list1.getHeader().clone());
 
-        final OverlapDetector<Interval> detector = new OverlapDetector<Interval>(0, 0);
+        final OverlapDetector<NamedInterval> detector = new OverlapDetector<NamedInterval>(0, 0);
 
         detector.addAll(list1.getIntervals(), list1.getIntervals());
 
-        for (final Interval i : list2.getIntervals()) {
-            final Collection<Interval> as = detector.getOverlaps(i);
-            for (final Interval j : as) {
-                final Interval tmp = i.intersect(j);
+        for (final NamedInterval i : list2.getIntervals()) {
+            final Collection<NamedInterval> as = detector.getOverlaps(i);
+            for (final NamedInterval j : as) {
+                final NamedInterval tmp = i.intersect(j);
 
                 result.add(tmp);
             }
@@ -483,10 +483,10 @@ public class IntervalList implements Iterable<Interval> {
      */
 
 
-    public static IntervalList intersection(final Collection<IntervalList> lists) {
+    public static NamedIntervalList intersection(final Collection<NamedIntervalList> lists) {
 
-        IntervalList intersection = null;
-        for (final IntervalList list : lists) {
+        NamedIntervalList intersection = null;
+        for (final NamedIntervalList list : lists) {
             if(intersection == null){
                 intersection = list;
             }
@@ -504,7 +504,7 @@ public class IntervalList implements Iterable<Interval> {
      * @param lists a list of IntervalList
      * @return the union of all the IntervalLists in lists.
      */
-    public static IntervalList concatenate(final Collection<IntervalList> lists) {
+    public static NamedIntervalList concatenate(final Collection<NamedIntervalList> lists) {
         if(lists.isEmpty()){
             throw new SAMException("Cannot concatenate an empty list of IntervalLists.");
         }
@@ -513,9 +513,9 @@ public class IntervalList implements Iterable<Interval> {
         final SAMFileHeader header = lists.iterator().next().getHeader().clone();
         header.setSortOrder(SAMFileHeader.SortOrder.unsorted);
 
-        final IntervalList merged = new IntervalList(header);
+        final NamedIntervalList merged = new NamedIntervalList(header);
 
-        for (final IntervalList in : lists) {
+        for (final NamedIntervalList in : lists) {
             SequenceUtil.assertSequenceDictionariesEqual(merged.getHeader().getSequenceDictionary(),
                     in.getHeader().getSequenceDictionary());
 
@@ -532,14 +532,14 @@ public class IntervalList implements Iterable<Interval> {
      * @param lists the list of IntervalList
      * @return the union of all the IntervalLists in lists.
      */
-    public static IntervalList union(final Collection<IntervalList> lists) {
-        final IntervalList merged = concatenate(lists);
+    public static NamedIntervalList union(final Collection<NamedIntervalList> lists) {
+        final NamedIntervalList merged = concatenate(lists);
         return merged.uniqued();
     }
 
-    public static IntervalList union(final IntervalList list1, final IntervalList list2) {
-        final Collection<IntervalList> duo = CollectionUtil.makeList(list1, list2);
-        return IntervalList.union(duo);
+    public static NamedIntervalList union(final NamedIntervalList list1, final NamedIntervalList list2) {
+        final Collection<NamedIntervalList> duo = CollectionUtil.makeList(list1, list2);
+        return NamedIntervalList.union(duo);
     }
 
     /** inverts an IntervalList and returns one that has exactly all the bases in the dictionary that the original one does not.
@@ -547,8 +547,8 @@ public class IntervalList implements Iterable<Interval> {
      * @param list an IntervalList
      * @return an IntervalList that is complementary to list
      */
-    public static IntervalList invert(final IntervalList list) {
-        final IntervalList inverse = new IntervalList(list.header.clone());
+    public static NamedIntervalList invert(final NamedIntervalList list) {
+        final NamedIntervalList inverse = new NamedIntervalList(list.header.clone());
 
         final ListMap<Integer,Interval> map = new ListMap<Integer,Interval>();
 
@@ -571,13 +571,13 @@ public class IntervalList implements Iterable<Interval> {
             if (map.containsKey(sequenceIndex)) // if there are intervals in the ListMap on this contig, iterate over them (in order)
                 for (final Interval i : map.get(sequenceIndex)) {
                     if (i.getStart() > lastCoveredPosition + 1) //if there's space between the last interval and the current one, add an interval between them
-                        inverse.add(new Interval(sequenceName, lastCoveredPosition + 1, i.getStart() - 1, false, "interval-" + (++intervals)));
+                        inverse.add(new NamedInterval(sequenceName, lastCoveredPosition + 1, i.getStart() - 1, false, "interval-" + (++intervals)));
                     lastCoveredPosition = i.getEnd(); //update the last covered position
                 }
             //finally, if there's room between the last covered position and the end of the sequence, add an interval
             if (sequenceLength > lastCoveredPosition) //if there's space between the last interval and the next
                 // one, add an interval. This also covers the case that there are no intervals in the ListMap for a contig.
-                inverse.add(new Interval(sequenceName, lastCoveredPosition + 1, sequenceLength, false, "interval-" + (++intervals)));
+                inverse.add(new NamedInterval(sequenceName, lastCoveredPosition + 1, sequenceLength, false, "interval-" + (++intervals)));
         }
 
         return inverse;
@@ -591,7 +591,7 @@ public class IntervalList implements Iterable<Interval> {
      * @param rhs the collection of intervals to subtract
      * @return an IntervalList comprising all loci that are in the first collection but not the second  lhs-rhs=answer.
      */
-    public static IntervalList subtract(final Collection<IntervalList> lhs, final Collection<IntervalList> rhs) {
+    public static NamedIntervalList subtract(final Collection<NamedIntervalList> lhs, final Collection<NamedIntervalList> rhs) {
         return intersection(
                 union(lhs),
                 invert(union(rhs)));
@@ -605,7 +605,7 @@ public class IntervalList implements Iterable<Interval> {
      * @param rhs the IntervalList to subtract
      * @return an IntervalList comprising all loci that are in first IntervalList but not the second. lhs-rhs=answer
      */
-    public static IntervalList subtract(final IntervalList lhs, final IntervalList rhs) {
+    public static NamedIntervalList subtract(final NamedIntervalList lhs, final NamedIntervalList rhs) {
         return subtract(Collections.singletonList(lhs),
                 Collections.singletonList(rhs));
     }
@@ -617,7 +617,7 @@ public class IntervalList implements Iterable<Interval> {
      * @param lists2 the second collection of IntervalLists
      * @return the difference between the two intervals, i.e. the loci that are only in one IntervalList but not both
      */
-    public static IntervalList difference(final Collection<IntervalList> lists1, final Collection<IntervalList> lists2) {
+    public static NamedIntervalList difference(final Collection<NamedIntervalList> lists1, final Collection<NamedIntervalList> lists2) {
         return union(
                 subtract(lists1, lists2),
                 subtract(lists2, lists1));
@@ -628,7 +628,7 @@ public class IntervalList implements Iterable<Interval> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final IntervalList intervals1 = (IntervalList) o;
+        final NamedIntervalList intervals1 = (NamedIntervalList) o;
 
         return header.equals(intervals1.header) && intervals.equals(intervals1.intervals);
     }
@@ -645,15 +645,15 @@ public class IntervalList implements Iterable<Interval> {
  * Comparator that orders intervals based on their sequence index, by coordinate
  * then by strand and finally by name.
  */
-class IntervalCoordinateComparator implements Comparator<Interval> {
+class NamedIntervalCoordinateComparator implements Comparator<NamedInterval> {
     private final SAMFileHeader header;
 
     /** Constructs a comparator using the supplied sequence header. */
-    IntervalCoordinateComparator(final SAMFileHeader header) {
+    NamedIntervalCoordinateComparator(final SAMFileHeader header) {
         this.header = header;
     }
 
-    public int compare(final Interval lhs, final Interval rhs) {
+    public int compare(final NamedInterval lhs, final NamedInterval rhs) {
         final int lhsIndex = this.header.getSequenceIndex(lhs.getSequence());
         final int rhsIndex = this.header.getSequenceIndex(rhs.getSequence());
         int retval = lhsIndex - rhsIndex;

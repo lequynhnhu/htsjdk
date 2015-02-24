@@ -4,8 +4,8 @@ import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.CloserUtil;
-import htsjdk.samtools.util.Interval;
-import htsjdk.samtools.util.IntervalList;
+import htsjdk.samtools.util.NamedInterval;
+import htsjdk.samtools.util.NamedIntervalList;
 import htsjdk.tribble.AbstractFeatureReader;
 import htsjdk.tribble.FeatureCodec;
 import htsjdk.tribble.FeatureReader;
@@ -79,15 +79,15 @@ public class VCFFileReader implements Closeable, Iterable<VariantContext> {
      * @param file
      * @return
      */
-    public static IntervalList fromVcf(final File file){
+    public static NamedIntervalList fromVcf(final File file){
         return fromVcf(file, false);
     }
 
-    public static IntervalList fromVcf(final File file, final boolean includeFiltered){
+    public static NamedIntervalList fromVcf(final File file, final boolean includeFiltered){
         final VCFFileReader vcfFileReader = new VCFFileReader(file, false);
-        final IntervalList intervalList = fromVcf(vcfFileReader, includeFiltered);
+        final NamedIntervalList namedIntervalList = fromVcf(vcfFileReader, includeFiltered);
         vcfFileReader.close();
-        return intervalList;
+        return namedIntervalList;
     }
 
     /**
@@ -98,16 +98,16 @@ public class VCFFileReader implements Closeable, Iterable<VariantContext> {
      * @return an IntervalList constructed from input vcf
      */
 
-    public static IntervalList fromVcf(final VCFFileReader vcf){
+    public static NamedIntervalList fromVcf(final VCFFileReader vcf){
         return fromVcf(vcf,false);
     }
-    public static IntervalList fromVcf(final VCFFileReader vcf, final boolean includeFiltered){
+    public static NamedIntervalList fromVcf(final VCFFileReader vcf, final boolean includeFiltered){
 
         //grab the dictionary from the VCF and use it in the IntervalList
         final SAMSequenceDictionary dict = vcf.getFileHeader().getSequenceDictionary();
         final SAMFileHeader samFileHeader = new SAMFileHeader();
         samFileHeader.setSequenceDictionary(dict);
-        final IntervalList list = new IntervalList(samFileHeader);
+        final NamedIntervalList list = new NamedIntervalList(samFileHeader);
 
         int intervals=0;
         for(final VariantContext vc : vcf){
@@ -116,7 +116,7 @@ public class VCFFileReader implements Closeable, Iterable<VariantContext> {
                 final Integer intervalEnd=vc.getCommonInfo().getAttributeAsInt("END",vc.getEnd());
                 if(".".equals(name) || name == null)
                     name = "interval-" + (++intervals);
-                list.add(new Interval(vc.getChr(), vc.getStart(), intervalEnd, false, name));
+                list.add(new NamedInterval(vc.getChr(), vc.getStart(), intervalEnd, false, name));
             }
         }
 

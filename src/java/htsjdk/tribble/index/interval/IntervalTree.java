@@ -53,7 +53,7 @@ public class IntervalTree {
     }
 
 
-    public void insert(Interval interval) {
+    public void insert(FileInterval interval) {
         Node node = new Node(interval);
         insert(node);
         size++;
@@ -74,13 +74,13 @@ public class IntervalTree {
      * @param interval
      * @return all matches as a list of Intervals
      */
-    public List<Interval> findOverlapping(Interval interval) {
+    public List<FileInterval> findOverlapping(FileInterval interval) {
 
         if (root().isNull()) {
             return Collections.emptyList();
         }
 
-        List<Interval> results = new ArrayList<Interval>();
+        List<FileInterval> results = new ArrayList<FileInterval>();
         searchAll(interval, root(), results);
         return results;
     }
@@ -89,7 +89,7 @@ public class IntervalTree {
         return root().toString();
     }
 
-    private List<Interval> searchAll(Interval interval, Node node, List<Interval> results) {
+    private List<FileInterval> searchAll(FileInterval interval, Node node, List<FileInterval> results) {
         if (node.interval.overlaps(interval)) {
             results.add(node.interval);
         }
@@ -108,11 +108,11 @@ public class IntervalTree {
      *
      * @return
      */
-    public List<Interval> getIntervals() {
+    public List<FileInterval> getIntervals() {
         if (root().isNull()) {
             return Collections.emptyList();
         }
-        List<Interval> results = new ArrayList<Interval>(size);
+        List<FileInterval> results = new ArrayList<FileInterval>(size);
         getAll(root(), results);
         return results;
     }
@@ -125,7 +125,7 @@ public class IntervalTree {
      * @param results
      * @return the total list of descendants, including original {@code results}
      */
-    private List<Interval> getAll(Node node, List<Interval> results) {
+    private List<FileInterval> getAll(Node node, List<FileInterval> results) {
 
         results.add(node.interval);
         if (!node.left.isNull()) {
@@ -445,7 +445,7 @@ public class IntervalTree {
         public static boolean BLACK = false;
         public static boolean RED = true;
 
-        Interval interval;
+        FileInterval interval;
         int min;
         int max;
         Node left;
@@ -470,7 +470,7 @@ public class IntervalTree {
 
         }
 
-        public Node(Interval interval) {
+        public Node(FileInterval interval) {
             this();
             this.parent = NIL;
             this.left = NIL;
@@ -499,7 +499,7 @@ public class IntervalTree {
         public String toString() {
 
             // Make some shorthand for the nodes
-            Map<Interval, Integer> keys = new LinkedHashMap<Interval, Integer>();
+            Map<FileInterval, Integer> keys = new LinkedHashMap<FileInterval, Integer>();
 
             if (this == NIL) {
                 return "nil";
@@ -509,7 +509,7 @@ public class IntervalTree {
             _toString(buf, keys);
 
             buf.append("\n");
-            for (Map.Entry<Interval, Integer> entry : keys.entrySet()) {
+            for (Map.Entry<FileInterval, Integer> entry : keys.entrySet()) {
                 buf.append(entry.getValue() + " = " + entry.getKey());
                 buf.append("\n");
             }
@@ -517,7 +517,7 @@ public class IntervalTree {
             return buf.toString();
         }
 
-        public void _toString(StringBuffer buf, Map<Interval, Integer> keys) {
+        public void _toString(StringBuffer buf, Map<FileInterval, Integer> keys) {
             if (this == NIL) {
                 buf.append("nil");
                 buf.append("\n");

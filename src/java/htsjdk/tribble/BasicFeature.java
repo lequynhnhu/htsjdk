@@ -24,6 +24,8 @@ package htsjdk.tribble;
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import htsjdk.samtools.util.Interval;
+
 /**
  * Trivial feature -- all it holds is the key information.
  *
@@ -40,15 +42,23 @@ public class BasicFeature implements Feature {
         this.stop = stop;
     }
 
+    @Override
     public String getChr() {
         return chr;
     }
 
+    @Override
     public int getStart() {
         return start;
     }
 
+    @Override
     public int getEnd() {
         return stop;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return new Interval(getChr(), getStart(),getEnd());
     }
 }
